@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cactus Progress Meter</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: linear-gradient(160deg, #fdf6e3 0%, #fce4b3 50%, #f9d080 100%);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Nunito', sans-serif;
+    padding: 24px;
+  }
+
+  h1 {
+    font-family: 'Fredoka One', cursive;
+    font-size: 2.4rem;
+    color: #5a3e1b;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+    text-align: center;
+    text-shadow: 2px 2px 0 #f9d08055;
+  }
+
+  .subtitle {
+    color: #8a6a3a;
+    font-size: 0.95rem;
+    margin-bottom: 28px;
+    text-align: center;
+    font-weight: 600;
+  }
+
+  .card {
+    background: rgba(255,255,255,0.72);
+    border-radius: 32px;
+    box-shadow: 0 8px 40px #c8a04040, 0 2px 8px #e8c87060;
+    padding: 32px 36px 28px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 420px;
+    width: 100%;
+    border: 2px solid #f5d89055;
+    backdrop-filter: blur(8px);
+  }
+
+  .cactus-container {
+    position: relative;
+    width: 220px;
+    height: 435px;
+    margin-bottom: 24px;
+  }
+
+  .cactus-img {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    z-index: 1;
+  }
+
+  /* green cactus image on top, clipped from bottom up to show progress */
+  .cactus-green {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    object-fit: contain;
+    z-index: 2;
+    clip-path: inset(100% 0 0 0);
+    transition: clip-path 1.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  /* Dashed line markers on the cactus image */
+  .markers {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 3;
+    pointer-events: none;
+  }
+
+  /* Glowing needle at current level */
+  .progress-needle {
+    position: absolute;
+    left: -12px;
+    width: calc(100% + 24px);
+    height: 3px;
+    background: linear-gradient(90deg, transparent, #ff6b35, #ff6b35, transparent);
+    border-radius: 2px;
+    z-index: 4;
+    transition: bottom 1.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 0 8px 2px #ff6b3588;
+  }
+
+  .progress-needle::after {
+    content: '';
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 10px; height: 10px;
+    background: #ff6b35;
+    border-radius: 50%;
+    box-shadow: 0 0 10px 3px #ff6b3566;
+    animation: pulse 1.4s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: translateY(-50%) scale(1); }
+    50% { opacity: 0.6; transform: translateY(-50%) scale(1.5); }
+  }
+
+  .stats {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .stat-box {
+    background: linear-gradient(135deg, #fff8e7, #fdf0cc);
+    border-radius: 16px;
+    padding: 14px 12px;
+    text-align: center;
+    border: 1.5px solid #f0d080;
+    box-shadow: 0 2px 8px #e8c87020;
+  }
+
+  .stat-label {
+    font-size: 0.7rem;
+    color: #a07840;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+  }
+
+  .stat-value {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.6rem;
+    color: #3a7a4a;
+    line-height: 1;
+  }
+
+  .stat-value.big {
+    font-size: 1.3rem;
+    color: #5a3e1b;
+  }
+
+  .pct-ring {
+    position: relative;
+    margin-bottom: 18px;
+  }
+
+  .pct-text {
+    font-family: 'Fredoka One', cursive;
+    font-size: 2.8rem;
+    color: #3a7a4a;
+    text-align: center;
+    line-height: 1;
+  }
+
+  .pct-sub {
+    font-size: 0.8rem;
+    color: #8a6a3a;
+    text-align: center;
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+
+  .progress-bar-wrap {
+    width: 100%;
+    background: #e8d8a0;
+    border-radius: 30px;
+    height: 18px;
+    overflow: hidden;
+    margin-bottom: 8px;
+    box-shadow: inset 0 2px 6px #c8a04030;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    border-radius: 30px;
+    background: linear-gradient(90deg, #5ac87a, #2a8a4a);
+    transition: width 1.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 2px 8px #3db85840;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .progress-bar-fill::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    animation: shimmer 2s infinite;
+  }
+
+  @keyframes shimmer {
+    0% { left: -100%; }
+    100% { left: 100%; }
+  }
+
+  .update-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #a07840;
+    font-size: 0.78rem;
+    font-weight: 600;
+    margin-top: 4px;
+  }
+
+  .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #5ac87a;
+    animation: blink 2s infinite;
+    flex-shrink: 0;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  .error-msg {
+    color: #c0392b;
+    font-size: 0.85rem;
+    text-align: center;
+    margin-top: 8px;
+    font-weight: 600;
+  }
+
+  .confetti {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 999;
+    display: none;
+  }
+</style>
+</head>
+<body>
+
+<h1>Happy Birthday RAZE</h1>
+<div class="subtitle">Thank you for helping us reach our fundraising goal!</div>
+
+<div class="card">
+    <div class="cactus-container">
+      <canvas class="confetti" id="confetti"></canvas>
+      <!-- cactus image on bottom -->
+      <img class="cactus-img" id="cactusImg" src="" alt="Cactus progress meter">
+      <!-- green cactus overlay, revealed from bottom up -->
+      <img class="cactus-green" id="cactusGreen" src="Cactus_Green.png" alt="">
+      <!-- progress needle on top of everything -->
+      <div class="progress-needle" id="needle" style="bottom:0%"></div>
+    </div>
+
+  <div class="pct-ring">
+    <div class="pct-text" id="pctText">–%</div>
+    <div class="pct-sub">OF GOAL REACHED</div>
+  </div>
+
+  <div class="progress-bar-wrap">
+    <div class="progress-bar-fill" id="barFill" style="width:0%"></div>
+  </div>
+
+  <div class="stats">
+    <div class="stat-box">
+      <div class="stat-label">Current</div>
+      <div class="stat-value" id="statCurrent">–</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label">Goal</div>
+      <div class="stat-value" id="statGoal">–</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label">Remaining</div>
+      <div class="stat-value big" id="statRemaining">–</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label">Status</div>
+      <div class="stat-value big" id="statStatus">–</div>
+    </div>
+  </div>
+
+  <div class="update-row">
+    <div class="dot"></div>
+    <span id="lastUpdated">Fetching data…</span>
+  </div>
+  <div class="error-msg" id="errorMsg"></div>
+</div>
+
+<script>
+// ── UPDATE THESE TWO NUMBERS ──────────────────────────────────────────
+const CURRENT_AMOUNT = 225;   // ← change this when donations come in
+const GOAL_AMOUNT    = 1000;  // ← your fundraising goal
+// ─────────────────────────────────────────────────────────────────────
+
+document.getElementById('cactusImg').src = 'Cactus_Empty Counter.png';
+
+function fmt(n) {
+  if (n >= 1_000_000) return (n/1_000_000).toFixed(1) + 'M';
+  if (n >= 1_000) return (n/1_000).toFixed(1) + 'K';
+  return n.toLocaleString(undefined, {maximumFractionDigits: 1});
+}
+
+let prevPct = 0;
+
+function updateUI(current, goal) {
+  const pct = Math.min(100, Math.max(0, (current / goal) * 100));
+  const remaining = Math.max(0, goal - current);
+
+  document.getElementById('pctText').textContent = Math.round(pct) + '%';
+  document.getElementById('barFill').style.width = pct + '%';
+  document.getElementById('cactusGreen').style.clipPath = `inset(${100 - pct}% 0 0 0)`;
+  document.getElementById('needle').style.bottom = pct + '%';
+
+  document.getElementById('statCurrent').textContent = '$' + fmt(current);
+  document.getElementById('statGoal').textContent = '$' + fmt(goal);
+  document.getElementById('statRemaining').textContent = '$' + fmt(remaining);
+
+  let statusText = 'Starting';
+  if (pct >= 100) statusText = 'Done!';
+  else if (pct >= 75) statusText = 'Almost!';
+  else if (pct >= 50) statusText = 'Halfway';
+  else if (pct >= 25) statusText = 'Growing';
+  document.getElementById('statStatus').textContent = statusText;
+
+  document.getElementById('lastUpdated').textContent = 'Last updated: ' + new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+
+  if (pct >= 100 && prevPct < 100) celebrate();
+  prevPct = pct;
+}
+
+// ── CONFETTI ──────────────────────────────────────────────────────────────────
+function celebrate() {
+  const canvas = document.getElementById('confetti');
+  canvas.style.display = 'block';
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const pieces = Array.from({length: 120}, () => ({
+    x: Math.random() * canvas.width,
+    y: -10,
+    r: 4 + Math.random() * 8,
+    color: ['#5ac87a','#ffd700','#ff6b35','#3db858','#f9d080'][Math.floor(Math.random()*5)],
+    vx: (Math.random()-0.5)*4,
+    vy: 2 + Math.random()*4,
+    rot: Math.random()*360,
+    rspeed: (Math.random()-0.5)*6
+  }));
+  let frame;
+  function draw() {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    pieces.forEach(p => {
+      p.x += p.vx; p.y += p.vy; p.rot += p.rspeed;
+      ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot*Math.PI/180);
+      ctx.fillStyle = p.color; ctx.fillRect(-p.r/2,-p.r/2,p.r,p.r);
+      ctx.restore();
+    });
+    if (pieces.some(p => p.y < canvas.height + 20)) frame = requestAnimationFrame(draw);
+    else { canvas.style.display='none'; ctx.clearRect(0,0,canvas.width,canvas.height); }
+  }
+  draw();
+  setTimeout(() => { cancelAnimationFrame(frame); canvas.style.display='none'; }, 5000);
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+updateUI(CURRENT_AMOUNT, GOAL_AMOUNT);
+</script>
+</body>
+</html>
