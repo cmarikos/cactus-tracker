@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Cactus Progress Meter</title>
-<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap" rel="stylesheet">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -15,12 +15,12 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    font-family: 'Nunito', sans-serif;
+    font-family: 'Montserrat', sans-serif;
     padding: 24px;
   }
 
   h1 {
-    font-family: 'Fredoka One', cursive;
+    font-family: 'Montserrat', sans-serif;
     font-size: 2.4rem;
     color: #5a3e1b;
     letter-spacing: 1px;
@@ -145,7 +145,7 @@
   }
 
   .stat-value {
-    font-family: 'Fredoka One', cursive;
+    font-family: 'Montserrat', sans-serif;
     font-size: 1.6rem;
     color: #3a7a4a;
     line-height: 1;
@@ -162,7 +162,7 @@
   }
 
   .pct-text {
-    font-family: 'Fredoka One', cursive;
+    font-family: 'Montserrat', sans-serif;
     font-size: 2.8rem;
     color: #3a7a4a;
     text-align: center;
@@ -332,7 +332,8 @@ function updateUI(current, goal) {
   document.getElementById('statRemaining').textContent = '$' + fmt(remaining);
 
   let statusText = 'Starting';
-  if (pct >= 100) statusText = 'Done!';
+  if (pct = 100) statusText = 'Goal reached!';
+  else if (pct > 100) statusText = 'Goal surpassed!';
   else if (pct >= 75) statusText = 'Almost!';
   else if (pct >= 50) statusText = 'Halfway';
   else if (pct >= 25) statusText = 'Growing';
