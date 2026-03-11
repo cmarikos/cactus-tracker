@@ -305,7 +305,7 @@
 
 <script>
 // ── UPDATE THESE TWO NUMBERS ──────────────────────────────────────────
-const CURRENT_AMOUNT = 930;   // change this when donations come in
+const CURRENT_AMOUNT = 1050;   // change this when donations come in
 const GOAL_AMOUNT    = 1000;  // your fundraising goal
 // ─────────────────────────────────────────────────────────────────────
 
@@ -333,7 +333,7 @@ function updateUI(current, goal) {
   document.getElementById('statRemaining').textContent = '$' + fmt(remaining);
 
   let statusText = 'Just getting started';
-  if (pct >= 100) statusText = 'Goal reached!';
+  if (pct >= 100) statusText = 'Over goal!';
   else if (pct >= 75) statusText = 'Almost!';
   else if (pct >= 50) statusText = 'Over halfway!';
   else if (pct >= 25) statusText = 'Growing';
