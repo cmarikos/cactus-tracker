@@ -305,16 +305,14 @@
 
 <script>
 // ── UPDATE THESE TWO NUMBERS ──────────────────────────────────────────
-const CURRENT_AMOUNT = 1345;   // change this when donations come in
+const CURRENT_AMOUNT = 1300;   // change this when donations come in
 const GOAL_AMOUNT    = 1000;  // your fundraising goal
 // ─────────────────────────────────────────────────────────────────────
 
 document.getElementById('cactusImg').src = 'Cactus_Empty Counter.png';
 
 function fmt(n) {
-  if (n >= 1_000_000) return (n/1_000_000).toFixed(1) + 'M';
-  if (n >= 1_000) return (n/1_000).toFixed(1) + 'K';
-  return n.toLocaleString(undefined, {maximumFractionDigits: 1});
+  return n.toLocaleString();
 }
 
 let prevPct = 0;
