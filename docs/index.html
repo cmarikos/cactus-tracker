@@ -335,7 +335,7 @@ function updateUI(current, goal) {
   let statusText = 'Just getting started';
   if (pct >= 100) statusText = 'Goal reached!';
   else if (pct >= 75) statusText = 'Almost!';
-  else if (pct >= 50) statusText = 'Over halfway';
+  else if (pct >= 50) statusText = 'Over halfway!';
   else if (pct >= 25) statusText = 'Growing';
   document.getElementById('statStatus').textContent = statusText;
 
